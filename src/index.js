@@ -2,7 +2,7 @@ import readline from "readline";
 import * as Golomb from "./golomb.js";
 import * as EliasGamma from "./elias-gamma.js";
 import * as Fibonacci from "./fibonacci.js";
-// const Huffman = require('./huffman');
+// import * as Huffman from "./huffman.js";
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -35,7 +35,7 @@ async function main() {
       "Insira os símbolos ou codewords (binários): "
     );
     const method = await askQuestion(
-      "Escolha o método (golomb, elias-gamma, fibonacci, huffman): "
+      "Escolha o método (golomb, elias-gamma, fibonacci): "
     );
     const action = await askQuestion("Escolha a ação (encode, decode): ");
 
@@ -71,22 +71,11 @@ async function main() {
           result = Fibonacci.decodeText(input);
         }
         break;
-      // case 'huffman':
-      //   if (action === 'encode') {
-      //     const frequencies = {}; // Frequências de exemplo, você pode ajustar conforme necessário
-      //     for (const char of input) {
-      //       frequencies[char] = (frequencies[char] || 0) + 1;
-      //     }
-      //     const huffmanTree = Huffman.buildTree(frequencies);
-      //     const huffmanCodes = Huffman.buildCodes(huffmanTree);
-      //     result = Huffman.encode(input, huffmanCodes);
+      // case "huffman":
+      //   if (action === "encode") {
+      //     result = Huffman.encodeText(input);
       //   } else {
-      //     const frequencies = {}; // Frequências de exemplo, você pode ajustar conforme necessário
-      //     for (const char of input) {
-      //       frequencies[char] = (frequencies[char] || 0) + 1;
-      //     }
-      //     const huffmanTree = Huffman.buildTree(frequencies);
-      //     result = Huffman.decode(input, huffmanTree);
+      //     result = Huffman.decodeText(input);
       //   }
       //   break;
       default:

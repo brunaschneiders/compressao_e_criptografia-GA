@@ -1,129 +1,102 @@
-const readline = require("readline");
+// Função para calcular a frequência de cada símbolo
+function calculateFrequency(text) {
+  const frequency = {};
+  for (const char of text) {
+    if (frequency[char]) {
+      frequency[char]++;
+    } else {
+      frequency[char] = 1;
+    }
+  }
+  return frequency;
+}
 
-class HuffmanNode {
-  constructor(char, freq, left = null, right = null) {
+// Função para ordenar as frequências dos símbolos
+function sortFrequency(frequency) {
+  return Object.entries(frequency).sort((a, b) => b[1] - a[1]);
+}
+
+// Classe Node para representar os nós da árvore de Huffman
+class Node {
+  constructor(char, freq) {
     this.char = char;
     this.freq = freq;
-    this.left = left;
-    this.right = right;
+    this.left = null;
+    this.right = null;
   }
 }
 
 // Função para construir a árvore de Huffman
-function buildHuffmanTree(text) {
-  const freqMap = new Map(); // frequência dos caracteres
-
-  for (const char of text) {
-    if (!freqMap.has(char)) {
-      freqMap.set(char, 0);
-    }
-    freqMap.set(char, freqMap.get(char) + 1);
-  }
-
-  const sortedFreq = [...freqMap.entries()].sort((a, b) => b[1] - a[1]);
-  // Criar uma fila de prioridade (min-heap)
-  const heap = [];
-  for (const [char, freq] of sortedFreq) {
-    heap.push(new HuffmanNode(char, freq));
-  }
+function buildHuffmanTree(orderedFrequency) {
+  // Cria uma lista de nós a partir das frequências ordenadas dos símbolos
+  const heap = orderedFrequency.map(([char, freq]) => new Node(char, freq));
   console.log({ heap });
-  heap.sort((a, b) => a.freq - b.freq);
-  // Construir a árvore de Huffman
+
+  // Continua combinando os nós até que reste apenas um nó
   while (heap.length > 1) {
-    const left = heap.shift();
-    const right = heap.shift();
-    const newNode = new HuffmanNode(null, left.freq + right.freq, left, right);
-    heap.push(newNode);
-    heap.sort((a, b) => a.freq - b.freq);
+    // Remove os dois nós de menor frequência (últimos elementos da lista)
+    const left = heap.pop();
+    const right = heap.pop();
+
+    // Cria um novo nó com a soma das frequências dos dois nós removidos
+    const merged = new Node(null, left.freq + right.freq);
+    merged.left = left;
+    merged.right = right;
+
+    console.log({ left, right, merged });
+
+    // Adiciona o novo nó de volta à lista
+    heap.push(merged);
+
+    // Reordena a lista de nós pela frequência em ordem decrescente
+    heap.sort((a, b) => b.freq - a.freq);
   }
-  console.log({ heap });
+
+  // Retorna o nó restante, que é a raiz da árvore de Huffman
   return heap[0];
 }
-// Função para gerar os códigos de Huffman
-function generateHuffmanCodes(node, prefix = "", codeMap = new Map()) {
-  if (node.char !== null) {
-    codeMap.set(node.char, prefix);
-  } else {
-    generateHuffmanCodes(node.left, prefix + "0", codeMap);
-    generateHuffmanCodes(node.right, prefix + "1", codeMap);
-  }
-  return codeMap;
-}
-// Função para codificar um texto usando Huffman
-function encodeHuffman(text) {
-  const root = buildHuffmanTree(text);
-  const codeMap = generateHuffmanCodes(root);
-  let encodedText = "";
-  for (const char of text) {
-    encodedText += codeMap.get(char);
-  }
-  return { encodedText, root };
-}
-// Função para decodificar um texto usando Huffman
-function decodeHuffman(encodedText, root) {
-  let decodedText = "";
-  let node = root;
-  for (const bit of encodedText) {
-    node = bit === "0" ? node.left : node.right;
+
+// Função para associar códigos aos símbolos
+function assignCodes(node, code = "", codes = {}) {
+  if (node) {
     if (node.char !== null) {
-      decodedText += node.char;
-      node = root;
+      codes[node.char] = code;
+    }
+    assignCodes(node.left, code + "0", codes);
+    assignCodes(node.right, code + "1", codes);
+  }
+  return codes;
+}
+
+// Função para codificar o texto usando Huffman
+export function encodeText(text) {
+  const sortedFrequency = sortFrequency(calculateFrequency(text));
+  console.log({ sortedFrequency });
+  const huffmanTree = buildHuffmanTree(sortedFrequency);
+  console.log({ huffmanTree });
+  const huffmanCodes = assignCodes(huffmanTree);
+  const encodedText = text
+    .split("")
+    .map((char) => huffmanCodes[char])
+    .join("");
+  return { encodedText, huffmanCodes };
+}
+
+// Função para decodificar o texto codificado usando Huffman
+export function decodeText(encodedText, huffmanCodes) {
+  const reverseCodes = Object.fromEntries(
+    Object.entries(huffmanCodes).map(([k, v]) => [v, k])
+  );
+  let currentCode = "";
+  let decodedText = "";
+
+  for (const bit of encodedText) {
+    currentCode += bit;
+    if (reverseCodes[currentCode]) {
+      decodedText += reverseCodes[currentCode];
+      currentCode = "";
     }
   }
+
   return decodedText;
 }
-
-// function encodeHuffman(text) {
-//   const freqMap = new Map();
-
-//   // Contar a frequência de cada caractere
-//   for (const char of text) {
-//     freqMap.set(char, (freqMap.get(char) || 0) + 1);
-//   }
-
-//   // Ordenar o mapa de acordo com a frequência da maior ocorrência para a menor
-//   const sortedFreq = [...freqMap.entries()].sort((a, b) => b[1] - a[1]);
-//   console.log(freqMap, sortedFreq);
-// }
-
-// Função principal para interagir com o usuário
-function main() {
-  console.log(encodeHuffman("abracadabra"));
-  //   const rl = readline.createInterface({
-  //     input: process.stdin,
-  //     output: process.stdout,
-  //   });
-
-  //   rl.question("Insira um texto para codificar usando Huffman: ", (input) => {
-  //     if (!input) {
-  //       console.error("Entrada inválida. Por favor, insira um texto.");
-  //       rl.close();
-  //       return;
-  //     }
-
-  //     rl.question(
-  //       "Insira o valor de m para a codificação Huffman: ",
-  //       (mInput) => {
-  //         const m = parseInt(mInput);
-  //         if (isNaN(m) || m <= 0) {
-  //           console.error(
-  //             "Valor de m inválido. Por favor, insira um número positivo."
-  //           );
-  //           rl.close();
-  //           return;
-  //         }
-
-  //         const encoded = encodeTextHuffman(input, m);
-  //         console.log(`Texto codificado: ${encoded}`);
-
-  //         const decoded = decodeTextHuffman(encoded, m);
-  //         console.log(`Texto decodificado: ${decoded}`);
-
-  //         rl.close();
-  //       }
-  //     );
-  //   });
-}
-
-// Executa a função principal
-main();

@@ -12,9 +12,9 @@ function encodeEliasGamma(num) {
 
   const prefix = "0".repeat(N); // Prefixo com N zeros
   const remainder = num - Math.pow(2, N); // Resto
-  const binaryRemainder = remainder.toString(2).padStart(N, "0"); // Sufixo em binário com N bits
+  const suffix = remainder.toString(2).padStart(N, "0"); // Sufixo em binário com N bits
 
-  return prefix + "1" + binaryRemainder; // Concatena o prefixo + stop bit +  sufixo
+  return prefix + "1" + suffix; // Concatena o prefixo + stop bit +  sufixo
 }
 
 function decodeEliasGamma(code) {
