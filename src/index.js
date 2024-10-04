@@ -45,16 +45,10 @@ async function main() {
 
     switch (method) {
       case "golomb":
-        const m = parseInt(
-          await askQuestion("Insira o valor de m (para Golomb): ")
-        );
-        if (isNaN(m) || m <= 0) {
-          throw new Error("O valor de m deve ser um número inteiro positivo.");
-        }
         if (action === "encode") {
-          result = Golomb.encodeText(input, m);
+          result = Golomb.encodeText(input);
         } else {
-          result = Golomb.decodeText(input, m);
+          result = Golomb.decodeText(input);
         }
         break;
       case "elias-gamma":

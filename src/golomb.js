@@ -35,18 +35,18 @@ function decodeGolomb(code, m) {
 }
 
 // Função para codificar uma string de texto
-export function encodeText(text, m) {
+export function encodeText(text) {
   return text
     .split("")
     .map((char) => {
       const charCode = char.charCodeAt(0); // Obtém o valor ASCII do caractere
-      const encoded = encodeGolomb(charCode, m);
+      const encoded = encodeGolomb(charCode, DIVISOR);
       return encoded;
     })
     .join(""); // Concatena todos os códigos sem espaços
 }
 
-export function decodeText(encodedText, m) {
+export function decodeText(encodedText) {
   let decodedText = "";
   let currentCode = "";
   let i = 0;
@@ -58,7 +58,7 @@ export function decodeText(encodedText, m) {
     if (isStopBit) {
       currentCode =
         currentCode + "1" + encodedText.slice(i + 1, i + BINARY_LENGTH + 1);
-      const charCode = decodeGolomb(currentCode, m);
+      const charCode = decodeGolomb(currentCode, DIVISOR);
       const char = String.fromCharCode(charCode);
       decodedText += char;
       currentCode = "";
